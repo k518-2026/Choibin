@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F1EFF4">
+<title>ちょい便</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="ちょい便">
+<style>
+  :root{
+    --paper:#F1EFF4;
+    --card:#FFFFFF;
+    --ink:#17141F;
+    --muted:#6F6A7D;
+    --violet:#5B3FD9;
+    --violet-soft:#E9E3FF;
+    --edge:#DCD7E6;
+    --ok:#1F8A5B;
+    --bad:#C1304A;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:24px 18px calc(40px + env(safe-area-inset-bottom));
+    max-width:560px;
+    margin:0 auto;
+    line-height:1.55;
+  }
+  header{margin-bottom:26px;}
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--violet);
+    margin:0 0 6px;
+  }
+  h1{
+    font-size:27px;
+    font-weight:700;
+    letter-spacing:-.02em;
+    margin:0 0 4px;
+  }
+  .sub{color:var(--muted);font-size:14px;margin:0;}
+  .sub b{font-family:var(--mono);font-weight:600;color:var(--ink);font-size:13px;}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--edge);
+    border-radius:16px;
+    padding:18px;
+    margin-bottom:16px;
+  }
+  .card h2{
+    font-size:15px;
+    font-weight:650;
+    margin:0 0 2px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .arrow{
+    font-family:var(--mono);
+    color:var(--violet);
+    font-size:15px;
+  }
+  .card p.hint{color:var(--muted);font-size:13px;margin:0 0 14px;}
+
+  .slot{
+    display:block;
+    width:100%;
+    border:1.5px dashed var(--edge);
+    border-radius:12px;
+    background:var(--violet-soft);
+    color:var(--violet);
+    font-size:15px;
+    font-weight:600;
+    padding:22px 16px;
+    text-align:center;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .slot:active{background:#DFD6FF;}
+  input[type=file]{display:none;}
+
+  ul{list-style:none;margin:14px 0 0;padding:0;}
+  li{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:11px 0;
+    border-top:1px solid var(--edge);
+  }
+  li:first-child{border-top:none;}
+  .name{
+    flex:1;
+    min-width:0;
+    font-size:14px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .size{font-family:var(--mono);font-size:12px;color:var(--muted);flex:none;}
+  .state{font-family:var(--mono);font-size:12px;flex:none;}
+  .state.ok{color:var(--ok);}
+  .state.bad{color:var(--bad);}
+  .bar{
+    height:3px;
+    background:var(--edge);
+    border-radius:2px;
+    overflow:hidden;
+    margin-top:6px;
+  }
+  .bar span{
+    display:block;
+    height:100%;
+    width:0;
+    background:var(--violet);
+    transition:width .2s linear;
+  }
+  @media (prefers-reduced-motion:reduce){.bar span{transition:none;}}
+  .row{display:block;width:100%;}
+
+  a.get{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    text-decoration:none;
+    color:inherit;
+  }
+  a.get .name{color:var(--violet);font-weight:600;}
+  .empty{color:var(--muted);font-size:13px;margin:0;}
+  footer{
+    color:var(--muted);
+    font-size:12px;
+    text-align:center;
+    margin-top:26px;
+    line-height:1.7;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">同じWi-Fiで接続中</p>
+  <h1>ちょい便</h1>
+  <p class="sub">相手のPC <b>{{DEVICE_NAME}}</b></p>
+</header>
+
+<section class="card">
+  <h2><span class="arrow">&#8593;</span>このPCへ送る</h2>
+  <p class="hint">写真でもファイルでも、選ぶとすぐ転送が始まります。</p>
+  <label class="slot" for="picker">ファイルを選ぶ</label>
+  <input id="picker" type="file" multiple>
+  <ul id="uploads"></ul>
+</section>
+
+<section class="card">
+  <h2><span class="arrow">&#8595;</span>このPCから受け取る</h2>
+  <p class="hint">PC側で共有中のファイルが並びます。</p>
+  <div id="downloads"><p class="empty">いま共有中のファイルはありません。</p></div>
+</section>
+
+<footer>
+  ファイルはこのWi-Fi内だけを通ります。<br>
+  外部のサーバーには一切送信されません。
+</footer>
+
+<script>
+(function(){
+  var picker = document.getElementById('picker');
+  var uploads = document.getElementById('uploads');
+  var downloads = document.getElementById('downloads');
+
+  function fmt(n){
+    if(n < 1024) return n + ' B';
+    var u = ['KB','MB','GB','TB'], i = -1;
+    do { n /= 1024; i++; } while(n >= 1024 && i < u.length - 1);
+    return (n >= 100 ? n.toFixed(0) : n.toFixed(1)) + ' ' + u[i];
+  }
+
+  function addRow(file){
+    var li = document.createElement('li');
+    li.className = 'row';
+    var top = document.createElement('div');
+    top.style.display = 'flex';
+    top.style.alignItems = 'center';
+    top.style.gap = '12px';
+
+    var name = document.createElement('div');
+    name.className = 'name';
+    name.textContent = file.name;
+
+    var size = document.createElement('div');
+    size.className = 'size';
+    size.textContent = fmt(file.size);
+
+    var state = document.createElement('div');
+    state.className = 'state';
+    state.textContent = '0%';
+
+    top.appendChild(name);
+    top.appendChild(size);
+    top.appendChild(state);
+
+    var bar = document.createElement('div');
+    bar.className = 'bar';
+    var fill = document.createElement('span');
+    bar.appendChild(fill);
+
+    li.appendChild(top);
+    li.appendChild(bar);
+    uploads.appendChild(li);
+    return { state: state, fill: fill };
+  }
+
+  function send(file){
+    var ui = addRow(file);
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/u?name=' + encodeURIComponent(file.name));
+    xhr.upload.onprogress = function(e){
+      if(!e.lengthComputable) return;
+      var pct = Math.round(e.loaded * 100 / e.total);
+      ui.state.textContent = pct + '%';
+      ui.fill.style.width = pct + '%';
+    };
+    xhr.onload = function(){
+      if(xhr.status === 200){
+        ui.state.textContent = '送信済み';
+        ui.state.className = 'state ok';
+        ui.fill.style.width = '100%';
+      } else {
+        ui.state.textContent = '失敗';
+        ui.state.className = 'state bad';
+      }
+    };
+    xhr.onerror = function(){
+      ui.state.textContent = '失敗';
+      ui.state.className = 'state bad';
+    };
+    xhr.send(file);
+  }
+
+  picker.addEventListener('change', function(){
+    var files = Array.prototype.slice.call(picker.files || []);
+    files.forEach(send);
+    picker.value = '';
+  });
+
+  function renderDownloads(list){
+    downloads.innerHTML = '';
+    if(!list.length){
+      var p = document.createElement('p');
+      p.className = 'empty';
+      p.textContent = 'いま共有中のファイルはありません。';
+      downloads.appendChild(p);
+      return;
+    }
+    var ul = document.createElement('ul');
+    list.forEach(function(f){
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      a.className = 'get';
+      a.href = '/d/' + f.id;
+      a.setAttribute('download', f.name);
+
+      var name = document.createElement('div');
+      name.className = 'name';
+      name.textContent = f.name;
+
+      var size = document.createElement('div');
+      size.className = 'size';
+      size.textContent = f.sizeText;
+
+      a.appendChild(name);
+      a.appendChild(size);
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+    downloads.appendChild(ul);
+  }
+
+  function poll(){
+    fetch('/api/files', { cache: 'no-store' })
+      .then(function(r){ return r.json(); })
+      .then(renderDownloads)
+      .catch(function(){});
+  }
+
+  poll();
+  setInterval(poll, 3000);
+})();
+</script>
+
+</body>
+</html>

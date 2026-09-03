@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Choibin</RootNamespace>
+    <AssemblyName>Choibin</AssemblyName>
+    <Version>1.0.0</Version>
+    <Company>Choibin</Company>
+    <Product>ちょい便</Product>
+    <AssemblyTitle>ちょい便 (Choibin)</AssemblyTitle>
+    <Description>同じLAN内のPCやスマホへファイルを直接送るアプリ</Description>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- ウィンドウとタスクバーに出すアイコン -->
+    <Resource Include="app.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Web\phone.html" />
+    <None Remove="Web\touch-icon.png" />
+    <EmbeddedResource Include="Web\phone.html" />
+    <EmbeddedResource Include="Web\touch-icon.png" />
+    <!-- スマホのブラウザーに返すファビコン -->
+    <EmbeddedResource Include="app.ico" />
+  </ItemGroup>
+
+</Project>

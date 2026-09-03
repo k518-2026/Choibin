@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ちょい便 取扱説明書</title>
+<style>
+  :root{
+    --paper:#F4F6F9;
+    --card:#FFFFFF;
+    --ink:#1D1D20;
+    --muted:#767B85;
+    --accent:#0A84FF;
+    --accent-deep:#0066D6;
+    --accent-soft:#E4F0FF;
+    --edge:#DDE1E8;
+    --ring:#CBE1FA;
+    --ok:#2FA84F;
+    --bad:#E0413A;
+    --warn:#C77700;
+    --mono:ui-monospace,"Cascadia Mono","SF Mono",Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;scroll-padding-top:24px;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Segoe UI Variable Text","Segoe UI","Yu Gothic UI",Meiryo,system-ui,sans-serif;
+    font-size:15px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- 全体の骨格 ---------- */
+  .shell{
+    max-width:1120px;
+    margin:0 auto;
+    padding:0 24px 80px;
+    display:grid;
+    grid-template-columns:236px minmax(0,1fr);
+    gap:36px;
+    align-items:start;
+  }
+
+  /* ---------- 表紙 ---------- */
+  header.hero{
+    background:linear-gradient(160deg,#5CCAFF 0%,#0A84FF 55%,#0064E6 100%);
+    color:#fff;
+    padding:56px 24px 64px;
+    margin-bottom:36px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.hero .inner{
+    max-width:1120px;
+    margin:0 auto;
+    padding:0 24px;
+    position:relative;
+    z-index:2;
+    display:flex;
+    align-items:center;
+    gap:24px;
+  }
+  header.hero .mark{width:84px;height:84px;border-radius:19px;flex:none;filter:drop-shadow(0 6px 16px rgba(0,0,0,.22));}
+  header.hero h1{margin:0;font-size:34px;font-weight:700;letter-spacing:.01em;}
+  header.hero .eng{
+    margin:0 0 2px;font-family:var(--mono);font-size:12px;
+    letter-spacing:.22em;opacity:.85;font-weight:600;
+  }
+  header.hero p{margin:6px 0 0;font-size:15px;opacity:.92;max-width:52ch;}
+  header.hero .ver{
+    display:inline-block;margin-top:12px;padding:3px 10px;border-radius:999px;
+    background:rgba(255,255,255,.2);font-family:var(--mono);font-size:12px;
+  }
+  /* 電波が広がる同心円。アプリの画面と同じモチーフ。 */
+  header.hero .rings{
+    position:absolute;right:-120px;bottom:-320px;width:760px;height:760px;
+    z-index:1;opacity:.28;pointer-events:none;
+  }
+  header.hero .rings circle{fill:none;stroke:#fff;stroke-width:2;}
+
+  /* ---------- 目次 ---------- */
+  nav.toc{position:sticky;top:24px;}
+  nav.toc h2{
+    font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 10px 12px;font-weight:700;
+  }
+  nav.toc ol{list-style:none;margin:0;padding:0;counter-reset:sec;}
+  nav.toc a{
+    display:block;padding:7px 12px;border-radius:8px;text-decoration:none;
+    color:var(--muted);font-size:13.5px;line-height:1.45;
+    border-left:2px solid transparent;
+  }
+  nav.toc a:hover{background:var(--accent-soft);color:var(--accent-deep);}
+  nav.toc a.active{background:var(--accent-soft);color:var(--accent-deep);font-weight:600;border-left-color:var(--accent);}
+
+  /* ---------- 本文 ---------- */
+  main{min-width:0;}
+  section{
+    background:var(--card);
+    border:1px solid var(--edge);
+    border-radius:14px;
+    padding:28px 30px;
+    margin-bottom:20px;
+  }
+  section > :first-child{margin-top:0;}
+  section > :last-child{margin-bottom:0;}
+
+  h2.sec{
+    font-size:21px;margin:0 0 6px;font-weight:700;
+    display:flex;align-items:baseline;gap:12px;
+  }
+  h2.sec .num{
+    font-family:var(--mono);font-size:13px;color:var(--accent);
+    font-weight:600;flex:none;
+  }
+  .lede{color:var(--muted);margin:0 0 22px;}
+  h3{font-size:15.5px;margin:26px 0 8px;font-weight:700;}
+  h4{font-size:14px;margin:18px 0 6px;font-weight:600;color:var(--accent-deep);}
+  p{margin:0 0 12px;}
+  ul,ol{margin:0 0 12px;padding-left:1.35em;}
+  li{margin:4px 0;}
+  code{
+    font-family:var(--mono);font-size:.88em;
+    background:#EFF2F6;border:1px solid var(--edge);
+    border-radius:5px;padding:1px 5px;
+  }
+  kbd{
+    font-family:var(--mono);font-size:.82em;background:#fff;
+    border:1px solid #C6CCD6;border-bottom-width:2px;border-radius:5px;
+    padding:1px 6px;white-space:nowrap;
+  }
+  a{color:var(--accent-deep);}
+
+  /* 操作手順 */
+  ol.steps{list-style:none;counter-reset:step;padding-left:0;}
+  ol.steps > li{
+    counter-increment:step;position:relative;
+    padding:0 0 4px 42px;margin:0 0 16px;
+  }
+  ol.steps > li::before{
+    content:counter(step);position:absolute;left:0;top:1px;
+    width:27px;height:27px;border-radius:50%;
+    background:var(--accent);color:#fff;
+    font-family:var(--mono);font-size:13px;font-weight:600;
+    display:flex;align-items:center;justify-content:center;
+  }
+  ol.steps > li b{display:block;}
+
+  table{border-collapse:collapse;width:100%;margin:0 0 14px;font-size:14px;}
+  th,td{border-bottom:1px solid var(--edge);padding:9px 12px;text-align:left;vertical-align:top;}
+  th{background:#F7F9FC;font-weight:600;font-size:13px;color:var(--muted);}
+  td code{white-space:nowrap;}
+
+  .note{
+    border-left:3px solid var(--accent);
+    background:var(--accent-soft);
+    border-radius:0 10px 10px 0;
+    padding:13px 16px;margin:0 0 14px;font-size:14px;
+  }
+  .note.warn{border-left-color:var(--warn);background:#FFF6E5;}
+  .note.bad{border-left-color:var(--bad);background:#FFEDEC;}
+  .note b{display:block;margin-bottom:2px;}
+  .note > :last-child{margin-bottom:0;}
+
+  /* 困ったときのQ&A */
+  details{
+    border:1px solid var(--edge);border-radius:10px;
+    padding:12px 16px;margin:0 0 10px;background:#FCFDFE;
+  }
+  details[open]{background:#fff;}
+  summary{cursor:pointer;font-weight:600;font-size:14.5px;}
+  summary::marker{color:var(--accent);}
+  details > :not(summary){margin-top:10px;}
+  details > :last-child{margin-bottom:0;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .tile{border:1px solid var(--edge);border-radius:10px;padding:14px 16px;}
+  .tile h4{margin-top:0;}
+  .tile p:last-child{margin-bottom:0;}
+
+  footer{
+    max-width:1120px;margin:0 auto;padding:0 48px 48px;
+    color:var(--muted);font-size:13px;
+  }
+
+  /* ---------- 画面が狭いとき ---------- */
+  @media (max-width:900px){
+    .shell{grid-template-columns:1fr;gap:20px;padding:0 16px 56px;}
+    nav.toc{position:static;}
+    nav.toc ol{display:flex;flex-wrap:wrap;gap:4px;}
+    nav.toc a{border-left:none;padding:6px 10px;}
+    nav.toc a.active{border-left:none;}
+    header.hero{padding:40px 16px 48px;}
+    header.hero .inner{padding:0;gap:14px;flex-direction:column;align-items:flex-start;}
+    header.hero h1{font-size:23px;line-height:1.35;}
+    header.hero p{font-size:14px;}
+    header.hero .mark{width:60px;height:60px;}
+    section{padding:22px 20px;}
+    .grid2{grid-template-columns:1fr;}
+  }
+
+  /* ---------- 印刷 ---------- */
+  @media print{
+    body{background:#fff;font-size:10.5pt;}
+    header.hero{background:none;color:var(--ink);padding:0 0 18pt;border-bottom:2pt solid var(--accent);margin-bottom:18pt;}
+    header.hero .rings{display:none;}
+    header.hero .ver{background:#EEE;color:var(--ink);}
+    nav.toc{display:none;}
+    .shell{display:block;padding:0;max-width:none;}
+    section{border:none;border-radius:0;padding:0;margin:0 0 16pt;break-inside:avoid;}
+    h2.sec{border-bottom:1pt solid var(--edge);padding-bottom:4pt;}
+    details{border:none;padding:0;}
+    details > *{display:block !important;}
+    a{color:var(--ink);text-decoration:none;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <svg class="rings" viewBox="0 0 760 760" aria-hidden="true">
+    <circle cx="380" cy="380" r="120"/><circle cx="380" cy="380" r="210"/>
+    <circle cx="380" cy="380" r="300"/><circle cx="380" cy="380" r="378"/>
+  </svg>
+  <div class="inner">
+    <svg class="mark" viewBox="0 0 1024 1024" role="img" aria-label="ちょい便">
+        <defs>
+          <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#5CCAFF"/><stop offset="1" stop-color="#0068EE"/>
+          </linearGradient>
+        </defs>
+        <rect width="1024" height="1024" rx="230" fill="url(#bg)"/>
+        <g fill="none" stroke="#fff" stroke-width="53" stroke-linecap="butt">
+          <path d="M283.3,606.8 A389.1,389.1 0 0 1 740.7,606.8"/>
+          <path d="M205.0,499.1 A522.2,522.2 0 0 1 819.0,499.1" opacity=".76"/>
+          <path d="M126.8,391.4 A655.4,655.4 0 0 1 897.2,391.4" opacity=".52"/>
+        </g>
+        <path fill="#fff" d="M512,643 L381,768 L643,768 Z"/>
+        <rect fill="#fff" x="480" y="758" width="63" height="131" rx="32"/>
+      </svg>
+    <div>
+      <p class="eng">CHOIBIN</p>
+      <h1>ちょい便 取扱説明書</h1>
+      <p>同じ Wi-Fi につながった PC 同士、そしてスマホと PC の間で、ファイルを直接やりとりするためのアプリです。</p>
+      <span class="ver">バージョン 1.0</span>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+
+<nav class="toc">
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#about">1. このアプリについて</a></li>
+    <li><a href="#setup">2. 準備する</a></li>
+    <li><a href="#pc">3. PC 同士で送る</a></li>
+    <li><a href="#phone">4. スマホとやりとりする</a></li>
+    <li><a href="#screen">5. 画面の見方</a></li>
+    <li><a href="#settings">6. 設定</a></li>
+    <li><a href="#security">7. 安全のしくみ</a></li>
+    <li><a href="#trouble">8. 困ったとき</a></li>
+    <li><a href="#spec">9. 仕様</a></li>
+    <li><a href="#faq">10. よくある質問</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<!-- ============ 1 ============ -->
+<section id="about">
+  <h2 class="sec"><span class="num">01</span>このアプリについて</h2>
+  <p class="lede">できることと、できないことを最初に整理します。</p>
+
+  <p>「ちょい便」は、同じネットワークにつながった端末同士でファイルを直接やりとりするアプリです。クラウドにもアカウントにも頼らないので、データが社外のサーバーを経由することはありません。</p>
+
+  <h3>できること</h3>
+  <table>
+    <tr><th style="width:38%">やりたいこと</th><th>方法</th></tr>
+    <tr><td>Windows → Windows</td><td>アプリ同士が自動で見つけ合います。相手を選んで送るだけです</td></tr>
+    <tr><td>iPhone / Android → Windows</td><td>PC の QR コードを読んで、ブラウザーでファイルを選びます。アプリのインストールは要りません</td></tr>
+    <tr><td>Windows → iPhone / Android</td><td>PC でファイルを公開し、スマホのブラウザーから保存します</td></tr>
+  </table>
+
+  <h3>できないこと</h3>
+  <div class="note bad">
+    <b>Mac や iPhone の AirDrop に直接送ることはできません</b>
+    <p>AirDrop は AWDL という Apple 独自の無線方式を使っています。仕様が公開されておらず、対応するのは Apple 製の Wi-Fi チップだけです。「Windows で AirDrop」をうたう市販ソフトも、実際には AirDrop につないでいるのではなく、同じネットワーク上での独自転送を行っています。「ちょい便」も同じ方針で、<b>同じ使い心地を別の仕組みで実現</b>しています。</p>
+  </div>
+
+  <p>そのため、相手の Mac や iPhone に送りたい場合は、<a href="#phone">4 章</a>のブラウザー経由の方法を使ってください。相手側にアプリを入れる必要はありません。</p>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="setup">
+  <h2 class="sec"><span class="num">02</span>準備する</h2>
+  <p class="lede">ビルドから初回起動まで。ここでつまずくとしたら、ほぼファイアウォールです。</p>
+
+  <h3>必要なもの</h3>
+  <ul>
+    <li>Windows 10 バージョン 1809 以降、または Windows 11</li>
+    <li>Visual Studio 2022（「.NET デスクトップ開発」ワークロード）</li>
+    <li>.NET 8 SDK</li>
+  </ul>
+  <p>外部の NuGet パッケージは一つも使っていません。ネットワークにつながっていない環境でもそのままビルドできます。</p>
+
+  <h3>ビルドする</h3>
+  <ol class="steps">
+    <li><b><code>Choibin.sln</code> を Visual Studio で開く</b></li>
+    <li><b><kbd>F5</kbd> を押す</b>ビルドだけなら <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> です。</li>
+  </ol>
+  <p>コマンドラインから実行する場合:</p>
+  <p><code>dotnet build Choibin.sln -c Release</code><br>
+     <code>dotnet run --project src/Choibin/Choibin.csproj</code></p>
+
+  <h3>初回起動とファイアウォール</h3>
+  <div class="note warn">
+    <b>「プライベート ネットワーク」にチェックを入れて許可してください</b>
+    <p>初めて起動すると Windows Defender ファイアウォールの確認画面が出ます。ここで拒否すると、相手の一覧にあなたの PC が出てこなくなります。</p>
+  </div>
+  <p>あとから許可し直したい場合や、確認画面を見逃した場合は、同梱の <code>ファイアウォール許可.bat</code> を右クリックして「管理者として実行」してください。必要な 3 つのポートをまとめて開けます。</p>
+
+  <h3>2 台目以降</h3>
+  <p>送る側と受け取る側の両方に「ちょい便」が必要です。同じ手順でビルドして起動してください。ビルド済みの <code>Choibin.exe</code> をフォルダーごとコピーしても動きます。</p>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="pc">
+  <h2 class="sec"><span class="num">03</span>PC 同士で送る</h2>
+  <p class="lede">いちばん基本の使い方です。</p>
+
+  <ol class="steps">
+    <li><b>両方の PC で「ちょい便」を起動する</b>同じ Wi-Fi、または同じ有線 LAN につないでおいてください。</li>
+    <li><b>相手が出てくるのを待つ</b>数秒で、画面左の「近くのデバイス」に丸いアイコンが並びます。背景の同心円は、相手を探している間だけゆっくり脈打ちます。</li>
+    <li><b>送るファイルを用意する</b>中央の枠にドラッグ＆ドロップするか、枠をクリックして選びます。複数まとめて指定できます。</li>
+    <li><b>相手のアイコンをクリックして選ぶ</b>選ぶと青い枠がつきます。</li>
+    <li><b>「選んだデバイスへ送る」を押す</b></li>
+    <li><b>受け取る側で「はい」を押す</b>確認画面には、ファイルの一覧・合計サイズ・保存先、そして<a href="#security">確認コード</a>が表示されます。</li>
+  </ol>
+
+  <p>転送中の進み具合は、画面中央下の「やりとりの記録」に出ます。完了すると保存先のパスが表示されます。</p>
+
+  <div class="note">
+    <b>毎回の確認が面倒なとき</b>
+    <p>設定の「確認せずに自動で受け取る」にチェックを入れると、確認画面なしで保存されます。自席の PC 同士など、相手が確実に分かっている場合だけにしてください。</p>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="phone">
+  <h2 class="sec"><span class="num">04</span>スマホとやりとりする</h2>
+  <p class="lede">スマホ側にアプリは要りません。ブラウザーだけで完結します。</p>
+
+  <h3>スマホから PC へ送る</h3>
+  <ol class="steps">
+    <li><b>スマホを PC と同じ Wi-Fi につなぐ</b></li>
+    <li><b>PC の画面右側にある QR コードを、スマホのカメラで読む</b>iPhone なら標準のカメラアプリで読み取れます。</li>
+    <li><b>証明書の警告が出たら「詳細」から進む</b>初回だけです。理由は<a href="#security">7 章</a>で説明します。</li>
+    <li><b>「ファイルを選ぶ」をタップする</b>選んだ瞬間に転送が始まり、PC の受信フォルダに保存されます。</li>
+  </ol>
+
+  <h3>PC からスマホへ送る</h3>
+  <ol class="steps">
+    <li><b>PC でファイルをドロップする</b></li>
+    <li><b>「スマホに公開」を押す</b></li>
+    <li><b>スマホのページを開く（または再読み込みする）</b>ページの下側にファイルが並びます。</li>
+    <li><b>ファイル名をタップして保存する</b></li>
+  </ol>
+
+  <div class="note">
+    <b>ホーム画面に追加できます</b>
+    <p>iPhone の共有メニューから「ホーム画面に追加」を選ぶと、アプリのように起動できます。ただしアクセスキーは「ちょい便」を再起動するたびに変わるため、そのたびに QR コードを読み直す必要があります。</p>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="screen">
+  <h2 class="sec"><span class="num">05</span>画面の見方</h2>
+  <p class="lede">ウィンドウは 3 つの列に分かれています。</p>
+
+  <div class="grid2">
+    <div class="tile">
+      <h4>左: 近くのデバイス</h4>
+      <p>見つかった相手が丸いアイコンで並びます。頭文字と IP アドレスが出ます。16 秒間応答がない相手は自動的に消えます。「もう一度探す」で即座に探し直せます。</p>
+    </div>
+    <div class="tile">
+      <h4>中央上: 送るファイル</h4>
+      <p>ドロップした（または選んだ）ファイルの一覧です。ここに入れてから送り先を選びます。</p>
+    </div>
+    <div class="tile">
+      <h4>中央下: やりとりの記録</h4>
+      <p>送信・受信の履歴と進捗です。鍵マーク 🔒 は暗号化されている印で、マウスを乗せると確認コードが出ます。</p>
+    </div>
+    <div class="tile">
+      <h4>右: スマホ連携と設定</h4>
+      <p>QR コード、接続先の URL、各種設定、受信フォルダの変更がまとまっています。</p>
+    </div>
+  </div>
+
+  <h3>このPCの名前</h3>
+  <p>画面右上のテキストボックスで変更できます。ここで付けた名前が、相手の一覧に表示されます。初期値は Windows のコンピューター名です。入力欄からフォーカスを外した時点で保存され、すぐ相手に伝わります。</p>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="settings">
+  <h2 class="sec"><span class="num">06</span>設定</h2>
+  <p class="lede">画面右側にまとまっています。変更するとすぐ保存されます。</p>
+
+  <table>
+    <tr><th style="width:34%">項目</th><th>説明</th></tr>
+    <tr>
+      <td>スマホからの接続を受け付ける</td>
+      <td>外すとスマホ向けのページが停止し、QR コードも消えます。PC 同士のやりとりには影響しません。</td>
+    </tr>
+    <tr>
+      <td>確認せずに自動で受け取る</td>
+      <td>受信時の確認画面を省きます。届いたファイルは黙って受信フォルダに保存されます。</td>
+    </tr>
+    <tr>
+      <td>送信前に確認コードを見比べる</td>
+      <td>送る直前に確認コードのダイアログを出します。相手の画面と数字を見比べてから送りたいときに使います。</td>
+    </tr>
+    <tr>
+      <td>スマホとの通信も HTTPS にする</td>
+      <td>初期値はオンです。外すと通信が暗号化されなくなる代わりに、ブラウザーの警告は出なくなります。</td>
+    </tr>
+    <tr>
+      <td>受信フォルダ</td>
+      <td>初期値は <code>%UserProfile%\Downloads\Choibin</code> です。「変更」で移せます。同名のファイルが既にある場合は自動で連番が付きます。</td>
+    </tr>
+  </table>
+
+  <p>設定は <code>%AppData%\Choibin\settings.json</code> に保存されます。このファイルを消せば初期状態に戻ります。</p>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="security">
+  <h2 class="sec"><span class="num">07</span>安全のしくみ</h2>
+  <p class="lede">何がどう守られているのかを説明します。</p>
+
+  <h3>PC 間の転送は必ず暗号化されます</h3>
+  <p>設定で切ることはできません。接続するたびに、その場かぎりの鍵を作って交換します。</p>
+  <table>
+    <tr><th style="width:24%">段階</th><th>使っている技術</th></tr>
+    <tr><td>鍵交換</td><td>ECDH（楕円曲線 P-256）。公開鍵だけをやりとりし、鍵そのものは回線に流れません</td></tr>
+    <tr><td>鍵の導出</td><td>HKDF-SHA256。送る向きと受け取る向きで別々の鍵を作ります</td></tr>
+    <tr><td>本体の暗号化</td><td>AES-256-GCM。64 KiB ごとのかたまりに分けて暗号化します</td></tr>
+  </table>
+  <p>鍵は接続が終わると捨てるので、通信を記録しておいて後から解読することはできません。またデータには連番が混ぜてあり、<b>並べ替え・欠落・再送・改ざんはすべてエラーとして弾かれます</b>。</p>
+
+  <h3>確認コード</h3>
+  <p>鍵交換だけでは、間に入った第三者が両側と別々に鍵を交換する「中間者攻撃」を防げません。そこで共有した秘密から <b>6 桁の数字</b>を作り、受信の確認画面に表示しています。</p>
+  <div class="note">
+    <b>送る側と受け取る側で同じ数字なら、間に誰もいません</b>
+    <p>違う数字が出ている場合は転送をやめて、ネットワークの管理者に相談してください。送信側でも確認したい場合は、設定の「送信前に確認コードを見比べる」を入れてください。</p>
+  </div>
+
+  <h3>スマホとの通信</h3>
+  <p>初期状態では HTTPS（TLS 1.2 / 1.3）で待ち受けます。ただし、LAN 内のプライベート IP アドレスに対しては認証局が証明書を発行してくれないため、証明書はアプリが自分で作っています。これが<b>ブラウザーの警告が出る理由</b>です。</p>
+  <div class="note warn">
+    <b>警告が出ても、通信は暗号化されています</b>
+    <p>警告が言っているのは「この証明書が本物だと保証してくれる第三者がいない」ということで、「暗号化されていない」という意味ではありません。「詳細」→「アクセスする」で進んでください。証明書は PC の IP アドレスが変わったときだけ作り直されます。</p>
+  </div>
+
+  <h3>アクセスキー</h3>
+  <p>スマホ向けのページには、起動のたびに作られる 8 文字のキーが必要です。QR コードにはキーが埋め込んであるので、読み取った端末はそのまま開けます。同じ Wi-Fi にいる別の人が URL を打ち込んでも入れません。アプリを再起動するとキーは変わります。</p>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="trouble">
+  <h2 class="sec"><span class="num">08</span>困ったとき</h2>
+  <p class="lede">よくある症状から探してください。</p>
+
+  <details>
+    <summary>相手の PC が一覧に出てこない</summary>
+    <p>上から順に確認してください。</p>
+    <ol>
+      <li><b>ファイアウォール</b> — もっとも多い原因です。両方の PC で <code>ファイアウォール許可.bat</code> を管理者として実行してください。</li>
+      <li><b>同じネットワークか</b> — 一方が 5GHz、他方がゲスト用 SSID につながっていると届きません。PC の IP アドレスの上 3 つの数字が揃っているか見てください。</li>
+      <li><b>ネットワークの種類</b> — Windows の設定でネットワークが「パブリック」になっていると通信が制限されます。「プライベート」に変更してください。</li>
+      <li><b>ゲスト Wi-Fi</b> — カフェやホテルなど、端末同士の通信が遮断されているネットワークでは原理的に見つけられません。</li>
+      <li>それでも出ない場合は「もう一度探す」を押してください。</li>
+    </ol>
+  </details>
+
+  <details>
+    <summary>「相手に接続できませんでした（応答なし）」と出る</summary>
+    <p>一覧には出ているのに接続できない場合、受け取る側のファイアウォールで TCP 53318 がふさがれている可能性が高いです。受け取る側で <code>ファイアウォール許可.bat</code> を実行してください。相手が転送中にアプリを閉じた場合にも出ます。</p>
+  </details>
+
+  <details>
+    <summary>スマホのブラウザーで「この接続ではプライバシーが保護されません」と出る</summary>
+    <p>自己署名証明書を使っているため、初回に必ず出ます。異常ではありません。「詳細設定」→「アクセスする」（iPhone なら「詳細」→「この Web サイトを閲覧」）で進んでください。どうしても警告を出したくない場合は、設定の「スマホとの通信も HTTPS にする」を外してください。ただし通信は暗号化されなくなります。</p>
+  </details>
+
+  <details>
+    <summary>スマホで「アクセスキーが必要です」と出る</summary>
+    <p>PC 側で「ちょい便」を再起動すると、アクセスキーが変わります。ブックマークや履歴から開くと古いキーのままなので弾かれます。PC の画面に出ている QR コードを読み直してください。</p>
+  </details>
+
+  <details>
+    <summary>送信側と受信側で確認コードが違う</summary>
+    <div class="note bad">
+      <b>転送を中止してください</b>
+      <p>通信の間に第三者が入り込んでいる可能性があります。信頼できるネットワークにつなぎ直したうえで、ネットワークの管理者に状況を伝えてください。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>「受信データの検証に失敗しました」と出る</summary>
+    <p>暗号化されたデータの整合性チェックに失敗しています。通信が途中で壊れたか、改ざんされた可能性があります。無線が不安定なだけのこともあるので、まずは電波の良い場所で送り直してください。繰り返し出る場合は有線 LAN を試してください。</p>
+  </details>
+
+  <details>
+    <summary>QR コードが表示されない / 「起動できませんでした」と出る</summary>
+    <p>ポート 53319 を他のアプリが使っている可能性があります。コマンドプロンプトで <code>netstat -ano | findstr 53319</code> を実行すると、使用中のプロセスが分かります。ポートを変えたい場合は <code>src/Choibin/Core/AppSettings.cs</code> の定数を書き換えてビルドし直してください。</p>
+  </details>
+
+  <details>
+    <summary>フォルダーを送ったら中身が一部しか届かない</summary>
+    <p>現在の版では、フォルダーをドロップしても直下のファイルだけが対象になります。サブフォルダーの中までは辿りません。丸ごと送りたい場合は、あらかじめ ZIP にまとめてください。</p>
+  </details>
+</section>
+
+<!-- ============ 9 ============ -->
+<section id="spec">
+  <h2 class="sec"><span class="num">09</span>仕様</h2>
+
+  <h3>使うポート</h3>
+  <table>
+    <tr><th style="width:34%">用途</th><th style="width:18%">ポート</th><th>種類</th></tr>
+    <tr><td>デバイスの検出</td><td><code>53317</code></td><td>UDP（ブロードキャスト / マルチキャスト <code>239.77.77.77</code>）</td></tr>
+    <tr><td>PC 間のファイル転送</td><td><code>53318</code></td><td>TCP</td></tr>
+    <tr><td>スマホ向けページ</td><td><code>53319</code></td><td>TCP（HTTPS）</td></tr>
+  </table>
+
+  <h3>ファイルの置き場所</h3>
+  <table>
+    <tr><th style="width:34%">内容</th><th>場所</th></tr>
+    <tr><td>受信したファイル</td><td><code>%UserProfile%\Downloads\Choibin</code>（変更可）</td></tr>
+    <tr><td>設定</td><td><code>%AppData%\Choibin\settings.json</code></td></tr>
+    <tr><td>HTTPS 用の証明書</td><td><code>%AppData%\Choibin\phone-*.pfx</code></td></tr>
+  </table>
+
+  <h3>現時点の制限</h3>
+  <ul>
+    <li>IPv4 のみに対応しています</li>
+    <li>フォルダーは直下のファイルだけが対象です（再帰しません）</li>
+    <li>相手が本人かどうかは、確認コードを目で見比べる方式です。一度確認した相手を覚えておく仕組みはありません</li>
+    <li>スマホ向けの証明書は自己署名のため、ブラウザーの警告を一度受け入れる必要があります</li>
+    <li>端末同士の通信が遮断されたネットワークでは相手を検出できません</li>
+  </ul>
+</section>
+
+<!-- ============ 10 ============ -->
+<section id="faq">
+  <h2 class="sec"><span class="num">10</span>よくある質問</h2>
+
+  <details>
+    <summary>Mac の AirDrop に直接送れませんか？</summary>
+    <p>できません。AirDrop が使っている AWDL は仕様が公開されておらず、Apple 製の Wi-Fi チップ専用です。Mac に送りたい場合は、Mac の Safari で QR コードの URL を開いてください。ブラウザー経由なら問題なくやりとりできます。</p>
+  </details>
+
+  <details>
+    <summary>Bluetooth では使えませんか？</summary>
+    <p>技術的には可能ですが、速度が実用に耐えません。Bluetooth Classic の実効速度は 1〜2 Mbps 程度で、1 GB のファイルに 2 時間近くかかります。Wi-Fi なら 1 分前後です。加えて事前のペアリングが必要で、iPhone は Apple 以外のアプリに接続方式を開放していないため、iPhone とはそもそも通信できません。</p>
+    <p>ただし<b>「相手を見つける」用途としては有効</b>です。AirDrop 自身がこの構成で、Bluetooth LE で相手を見つけ、実際のデータは Wi-Fi で飛ばしています。この方式を採り入れれば、Wi-Fi につながっていなくても近くの PC を一覧に出せるようになります。</p>
+  </details>
+
+  <details>
+    <summary>暗号化を切って速くできませんか？</summary>
+    <p>切る手段は用意していません。AES-256-GCM は最近の CPU なら専用命令で処理されるため、実際の転送速度はネットワークの速さで決まります。暗号化が理由で遅くなることはまずありません。</p>
+  </details>
+
+  <details>
+    <summary>インターネット越しに使えますか？</summary>
+    <p>できません。同じネットワークの中だけで動く設計です。相手を見つける仕組みがブロードキャストに依存しているため、ルーターを越えると届きません。</p>
+  </details>
+
+  <details>
+    <summary>会社で配布してもいいですか？</summary>
+    <p>社内で使う分には、商標登録などの手続きは要りません。他人の登録商標を製品名として使っていなければ問題にならないためです。「ちょい便」という名前は、Apple の AirDrop をはじめとする既存の商標を避けて選んでいます。</p>
+    <div class="note warn">
+      <b>社外に配布・公開する場合は事前に確認を</b>
+      <p>J-PlatPat で「チョイビン」を称呼検索し、第 9 類（ダウンロード可能なソフトウェア）と第 42 類（ソフトウェアの設計・SaaS）に登録済みまたは出願中の商標がないか確認してください。判断に迷う場合は弁理士にご相談ください。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>ポート番号を変えたい</summary>
+    <p><code>src/Choibin/Core/AppSettings.cs</code> の先頭にある <code>DiscoveryPort</code> / <code>TransferPort</code> / <code>WebPort</code> を書き換えてビルドし直してください。やりとりする全部の PC で同じ値にする必要があります。<code>ファイアウォール許可.bat</code> の中のポート番号も合わせて変えてください。</p>
+  </details>
+</section>
+
+</main>
+</div>
+
+<footer>
+  ちょい便（Choibin）取扱説明書 — このページはオフラインでも開けます。ブラウザーの印刷機能で PDF にもできます。
+</footer>
+
+<script>
+  // 読んでいる場所に合わせて目次の項目を光らせる
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
+  var sections = links.map(function (a) {
+    return document.querySelector(a.getAttribute('href'));
+  });
+
+  function highlight() {
+    var line = window.scrollY + 140;
+    var current = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop <= line) current = i;
+    }
+    links.forEach(function (a, i) {
+      a.classList.toggle('active', i === current);
+    });
+  }
+
+  window.addEventListener('scroll', highlight, { passive: true });
+  window.addEventListener('resize', highlight);
+  highlight();
+</script>
+
+</body>
+</html>
