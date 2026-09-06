@@ -1,5 +1,9 @@
 # ちょい便 — Choibin
 
+実行ファイル一式
+https://github.com/k518-2026/Choibin/releases
+
+
 近くのPCやスマホへ、ちょいと渡す。
 
 同じ Wi-Fi / LAN につながっている **PC 同士**、そして **スマホ ↔ PC** の間でファイルを直接やりとりするアプリです。
