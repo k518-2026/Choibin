@@ -1,6 +1,6 @@
 # ちょい便 — Choibin
 
-実行ファイル一式
+実行ファイルのダウンロード.
 https://github.com/k518-2026/Choibin/releases
 
 
