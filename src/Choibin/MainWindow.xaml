@@ -193,6 +193,7 @@
             <Grid Grid.Column="1" Margin="0,0,14,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
@@ -242,7 +243,30 @@
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Row="1" Style="{StaticResource Card}">
+                <!-- メッセージ（旧 LANLink の機能、2026-11-02 追加） -->
+                <Border Grid.Row="1" Style="{StaticResource Card}" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock Text="メッセージ" Style="{StaticResource H2}"/>
+                        <TextBlock Text="選んだデバイスへ短い文章を送ります。ファイルと同じく暗号化されます。"
+                                   Style="{StaticResource Hint}" Margin="0,0,0,8"/>
+                        <TextBox x:Name="ChatLog" Height="88" IsReadOnly="True" TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto" FontSize="12" BorderThickness="1"
+                                 BorderBrush="{StaticResource EdgeBrush}" Padding="6,4"/>
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="MessageBox1" Grid.Column="0" FontSize="13" Padding="6,5" MaxLength="10000"
+                                     BorderThickness="1" BorderBrush="{StaticResource EdgeBrush}"
+                                     KeyDown="MessageBox1_KeyDown" ToolTip="Enter で送信"/>
+                            <Button x:Name="SendMessageButton" Grid.Column="1" Content="送る" Margin="8,0,0,0"
+                                    Style="{StaticResource PrimaryButton}" Click="SendMessage_Click"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="2" Style="{StaticResource Card}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>

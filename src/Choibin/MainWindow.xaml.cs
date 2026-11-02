@@ -85,6 +85,12 @@ namespace Choibin
                 _dropServer.TransferAdded = item => Dispatcher.Invoke(() => _transfers.Insert(0, item));
                 _dropServer.TransferFinished = item => { };
                 _dropServer.ErrorOccurred = msg => { };
+                _dropServer.MessageReceived = (from, text, code) => Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    AppendChat(from + "：" + text);
+                    // 別の作業中でも気づけるよう、タスクバーを点滅させる
+                    if (!IsActive) FlashTaskbar();
+                }));
                 _dropServer.Start();
             }
             catch (Exception ex)
@@ -369,6 +375,62 @@ namespace Choibin
             {
                 SendButton.IsEnabled = true;
             }
+        }
+
+        // ---------- メッセージ（旧 LANLink） ----------
+
+        private async void SendMessage_Click(object sender, RoutedEventArgs e)
+        {
+            string text = MessageBox1.Text.Trim();
+            if (text.Length == 0) return;
+            var peer = PeerList.SelectedItem as Peer;
+            if (peer == null)
+            {
+                MessageBox.Show(this, "左のリストから送る相手を選んでください。", "ちょい便",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            SendMessageButton.IsEnabled = false;
+            try
+            {
+                string code = await DropClient.SendMessageAsync(peer, _settings.DeviceName, text, ConfirmSecurityCode);
+                if (code == null) return;   // 確認コードの照合で中止
+                AppendChat("自分 → " + peer.Name + "：" + text);
+                MessageBox1.Clear();
+            }
+            catch (Exception ex)
+            {
+                AppendChat("（" + peer.Name + " へ送れませんでした：" + ex.Message + "）");
+            }
+            finally
+            {
+                SendMessageButton.IsEnabled = true;
+                MessageBox1.Focus();
+            }
+        }
+
+        private void MessageBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter && SendMessageButton.IsEnabled)
+            {
+                e.Handled = true;
+                SendMessage_Click(sender, e);
+            }
+        }
+
+        private void AppendChat(string line)
+        {
+            ChatLog.AppendText((ChatLog.Text.Length > 0 ? Environment.NewLine : "") + DateTime.Now.ToString("HH:mm") + "  " + line);
+            ChatLog.ScrollToEnd();
+        }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool FlashWindow(IntPtr hwnd, bool invert);
+
+        private void FlashTaskbar()
+        {
+            try { FlashWindow(new System.Windows.Interop.WindowInteropHelper(this).Handle, true); } catch { }
         }
 
         /// <summary>設定がオンのとき、送信前に確認コードを見比べてもらいます。</summary>

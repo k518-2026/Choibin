@@ -23,6 +23,12 @@ namespace Choibin.Net
     {
         [JsonPropertyName("sender")] public string Sender { get; set; }
         [JsonPropertyName("files")] public List<FileEntry> Files { get; set; }
+
+        /// <summary>
+        /// 短いメッセージ（旧 LANLink の機能、2026-11-02 追加）。ファイルなしでこれだけ送る。
+        /// 古いちょい便はファイルの無いヘッダーを黙って閉じるので、混在しても壊れない。
+        /// </summary>
+        [JsonPropertyName("message")] public string Message { get; set; }
     }
 
     /// <summary>
@@ -42,6 +48,12 @@ namespace Choibin.Net
         public Action<TransferItem> TransferAdded;
         public Action<TransferItem> TransferFinished;
         public Action<string> ErrorOccurred;
+
+        /// <summary>メッセージを受け取った（送り主の名前・本文・確認コード）。</summary>
+        public Action<string, string, string> MessageReceived;
+
+        /// <summary>1 通のメッセージの上限（文字数）。</summary>
+        public const int MaxMessageLength = 10000;
 
         public DropServer(AppSettings settings)
         {
@@ -98,9 +110,24 @@ namespace Choibin.Net
 
                     TransferHeader header = JsonSerializer.Deserialize<TransferHeader>(
                         Encoding.UTF8.GetString(headerBuf));
-                    if (header == null || header.Files == null || header.Files.Count == 0) return;
+                    if (header == null) return;
 
                     string sender = string.IsNullOrWhiteSpace(header.Sender) ? "不明な相手" : header.Sender;
+
+                    // メッセージだけの送信: 受け取ったことを 1 バイトで返して終わる
+                    if ((header.Files == null || header.Files.Count == 0) && !string.IsNullOrEmpty(header.Message))
+                    {
+                        string text = header.Message.Length > MaxMessageLength
+                            ? header.Message.Substring(0, MaxMessageLength)
+                            : header.Message;
+                        Action<string, string, string> onMessage = MessageReceived;
+                        if (onMessage != null) onMessage(sender, text, code);
+                        stream.WriteByte(1);
+                        stream.Flush();
+                        return;
+                    }
+
+                    if (header.Files == null || header.Files.Count == 0) return;
 
                     bool accept = _settings.AutoAccept;
                     if (!accept)

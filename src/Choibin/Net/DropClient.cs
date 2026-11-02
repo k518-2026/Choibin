@@ -13,6 +13,52 @@ namespace Choibin.Net
     /// <summary>選んだ相手へファイルを送ります。</summary>
     public static class DropClient
     {
+        /// <summary>
+        /// 短いメッセージを送る（旧 LANLink の機能）。ファイルと同じ暗号化された通り道を使う。
+        /// 届いたら確認コードを返す。断られたら null。
+        /// </summary>
+        public static async Task<string> SendMessageAsync(Peer peer, string myName, string text, Func<Peer, string, bool> confirmCode)
+        {
+            if (string.IsNullOrEmpty(text)) throw new ArgumentException("メッセージが空です。");
+            if (text.Length > DropServer.MaxMessageLength)
+                throw new ArgumentException("メッセージが長すぎます（" + DropServer.MaxMessageLength + " 文字まで）。");
+
+            using (var client = new TcpClient())
+            {
+                var connect = client.ConnectAsync(peer.Address, peer.Port);
+                var timeout = Task.Delay(8000);
+                if (await Task.WhenAny(connect, timeout).ConfigureAwait(false) == timeout)
+                    throw new IOException("相手に接続できませんでした（応答なし）。");
+                await connect.ConfigureAwait(false);
+                client.SendTimeout = 30000;
+                client.ReceiveTimeout = 30000;
+
+                using (NetworkStream raw = client.GetStream())
+                using (SecureChannel stream = SecureChannel.Establish(raw, true))
+                {
+                    if (confirmCode != null && !confirmCode(peer, stream.VerificationCode)) return null;
+
+                    var header = new TransferHeader { Sender = myName, Files = new List<FileEntry>(), Message = text };
+                    byte[] json = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(header));
+                    byte[] len =
+                    {
+                        (byte)(json.Length >> 24), (byte)(json.Length >> 16),
+                        (byte)(json.Length >> 8), (byte)json.Length
+                    };
+                    await stream.WriteAsync(len, 0, 4).ConfigureAwait(false);
+                    await stream.WriteAsync(json, 0, json.Length).ConfigureAwait(false);
+                    await stream.FlushAsync().ConfigureAwait(false);
+
+                    int answer;
+                    try { answer = stream.ReadByte(); }
+                    catch (IOException) { answer = -1; }
+                    if (answer != 1)
+                        throw new IOException("相手のちょい便がメッセージに対応していないようです（古い版の可能性があります）。");
+                    return stream.VerificationCode;
+                }
+            }
+        }
+
         public static async Task SendAsync(
             Peer peer,
             IList<string> paths,
